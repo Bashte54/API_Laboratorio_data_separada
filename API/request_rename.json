@@ -1,0 +1,12 @@
+{
+  "df_data": {
+    "data": [
+      {"age":58,"job":"management","marital":"married","education":"tertiary","default":"no","balance":2143.0,"housing":"yes","loan":"no","contact":"unknown","day":5,"month":"may","duration":261.0,"campaign":1,"pdays":-1.0,"previous":0,"poutcome":"unknown","y":"no"},
+      {"age":44,"job":"technician","marital":"single","education":"secondary","default":"no","balance":29.0,"housing":"yes","loan":"no","contact":"unknown","day":5,"month":"may","duration":151.0,"campaign":1,"pdays":-1.0,"previous":0,"poutcome":"unknown","y":"no"}
+    ],
+    "columns": ["age","job","marital","education","default","balance","housing","loan","contact","day","month","duration","campaign","pdays","previous","poutcome","y"]
+  },
+  "column_name": "job",           
+  "operation": "renombrar",      
+  "param": "JOB"                   
+}
