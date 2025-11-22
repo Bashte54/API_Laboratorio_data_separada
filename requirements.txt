@@ -16,3 +16,5 @@ loguru
 rich
 fastapi
 uvicorn[standard]
+pydantic
+python-multipart

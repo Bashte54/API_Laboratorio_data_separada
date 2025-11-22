@@ -1,4 +1,4 @@
-#!/home/yuyots/Escritorio/cleanDataTool/.venv/bin/python
+#!/home/yuyots/Escritorio/cleanDataTool/.venv/bin/python3
 
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
