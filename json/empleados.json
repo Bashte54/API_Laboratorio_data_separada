@@ -1,0 +1,17 @@
+[
+  {
+    "empresa": "Tecnologia",
+    "departamento": "Desarrollo",
+    "empleados": ["Juan", "Maria", "Pedro"]
+  },
+  {
+    "empresa": "Tecnologia",
+    "departamento": "Soporte",
+    "empleados": ["Lucia", "Carlos"]
+  },
+  {
+    "empresa": "Innovacion",
+    "departamento": "I+D",
+    "empleados": ["Elena"]
+  }
+]

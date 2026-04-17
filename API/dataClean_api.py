@@ -52,9 +52,8 @@ def read_file_from_buffer(file_buffer: Union[BytesIO, StringIO], filename: str) 
         # Relanzamos el error para que FastAPI lo maneje
         raise IOError(f"Error al leer el archivo: {e}")
 
-# =========================================================================
+
 # 2. FUNCIONES DE LIMPIEZA (Puras - Devuelven DF modificado)
-# =========================================================================
 
 def eliminar_columna_api(df: pd.DataFrame, columna: str) -> pd.DataFrame:
     if columna not in df.columns:

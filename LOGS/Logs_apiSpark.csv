@@ -1,0 +1,12 @@
+2026-02-17,21:55:12,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MTM5MDMwMX0.WytJxZUQsjrTcRiH_V8r0MjpifT4yIO6i7CPRP6ttlU,Subida de Archivo,Archivo: banco.csv
+2026-02-17,21:59:28,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MTM5MDMwMX0.WytJxZUQsjrTcRiH_V8r0MjpifT4yIO6i7CPRP6ttlU,Análisis: nulos_totales,Col: todas
+2026-02-17,22:17:14,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MTM5MTc4MH0.PS8U5qZuEyFWMWE2thmmQMzvWXTu-IW_RqbVFAj2Nc4,Subida de Archivo,Archivo: empleados.json
+2026-02-17,22:18:13,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MTM5MTc4MH0.PS8U5qZuEyFWMWE2thmmQMzvWXTu-IW_RqbVFAj2Nc4,Limpieza: desdoblar,"Col: empleados, Param: None"
+2026-04-09,15:52:16,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3NDcwOH0.H4n0lUKliN0Jarn9lnKpYkX7ix5y4nRLF3VgqyAJ1vk,SPARK: upload,prueba_v1.csv
+2026-04-09,16:01:16,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3NDcwOH0.H4n0lUKliN0Jarn9lnKpYkX7ix5y4nRLF3VgqyAJ1vk,SPARK: upload,prueba_v1.csv
+2026-04-09,16:02:55,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3NDcwOH0.H4n0lUKliN0Jarn9lnKpYkX7ix5y4nRLF3VgqyAJ1vk,SPARK: upload,prueba_v1.csv
+2026-04-09,16:15:24,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3NDcwOH0.H4n0lUKliN0Jarn9lnKpYkX7ix5y4nRLF3VgqyAJ1vk,SPARK: upload,prueba_v1.csv
+2026-04-09,16:16:25,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3NDcwOH0.H4n0lUKliN0Jarn9lnKpYkX7ix5y4nRLF3VgqyAJ1vk,SPARK: upload,prueba_v1.csv
+2026-04-09,16:36:22,127.0.0.1,admin,N/A,SPARK: renombrar,f774ba1b-ad71-45fe-8d9b-ad32da9976bc col:edad -> edad_anios
+2026-04-09,16:44:26,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3ODIwN30.gr2YBwBJTGpTLrMDT507O6Vl9Rz91Y7uBLNFNVP25Fc,SPARK: upload,prueba_v1.csv
+2026-04-09,16:45:26,127.0.0.1,admin,eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3NTc3ODI5Nn0.0olHqpHWfkNSV51VDgGO6fmdL9Tb4kX-Zq1UgHR_hoA,SPARK: upload,prueba_v1.csv

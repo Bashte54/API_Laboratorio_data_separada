@@ -1,0 +1,7 @@
+nombre,edad,email,ciudad,salario,activo
+Juan Pérez,25,juan@email.com,México,35000.50,si
+María García,treinta,maria@email.com,Guadalajara,42000.75,no
+Carlos López,,carlos@email.com,México,invalid,si
+Ana Martínez,30,ana@email.com,Monterrey,55000.00,si
+Pedro Ruiz,22,pedro@email.com,México,28000.00,no
+Laura Gómez,35,laura@email.com,Guadalajara,68000.00,si

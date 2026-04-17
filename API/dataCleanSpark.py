@@ -1,6 +1,4 @@
-import os
-import sys
-import findspark 
+import os 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.types import IntegerType, FloatType, StringType, BooleanType, DateType
@@ -13,83 +11,24 @@ from pathlib import Path
 import pandas as pd
 
 
-# =========================================================
-# 0. CONFIGURACIÓN CRÍTICA DE RUTAS Y ENTORNO
-# =========================================================
-
-# 1. Rutas del entorno (Variables a usar)
-spark_home = os.environ.get('SPARK_HOME', '/opt/spark') 
-# RUTA ABSOLUTA DE PYTHON: Apuntando a su entorno Conda 'api_data'
-python_executable = '/home/yuyots/anaconda3/envs/api_data/bin/python' 
-# Ruta de Java 11 (Directorio raíz, como debe ser)
-java_home = os.environ.get('JAVA_HOME', '/usr/lib/jvm/java-17-openjdk-amd64') 
-
-
-# 2. ESTABLECER VARIABLES DE ENTORNO ANTES DE CUALQUIER OTRA COSA
-# Es crítico que estas variables estén disponibles para la JVM y PySpark al inicio.
-os.environ['SPARK_HOME'] = spark_home
-os.environ['JAVA_HOME'] = java_home
-os.environ['PYSPARK_PYTHON'] = python_executable 
-
-# Configuración adicional para asegurar que Spark use el Python correcto
-os.environ['PYSPARK_SUBMIT_ARGS'] = f"--conf spark.pyspark.python={python_executable} pyspark-shell"
-
-
-# 3. Configuración de findspark
-try:
-    # findspark.init solo necesita SPARK_HOME. La ruta de Python se maneja con os.environ
-    findspark.init(spark_home=spark_home) 
-    print(f"INFO: findspark inicializado. Usando SPARK_HOME: {spark_home}")
-except Exception as e:
-    print(f"ERROR: findspark falló al inicializar. Error: {e}")
-    # Si findspark falla, las variables de entorno ya están establecidas.
-
-
-# =========================================================
-# 4. FUNCIÓN DE INICIALIZACIÓN DE SPARK (SINGLETON)
-# =========================================================
-
-_spark_session = None
-
-def get_spark_session() -> SparkSession:
+def get_spark_session(app_name="DataCleanSparkAPI"):
     """
-    Patrón Singleton: Inicializa la SparkSession, forzando la configuración de Python 
-    y deshabilitando las optimizaciones de Arrow/Pandas para compatibilidad de versión.
+    Configura y devuelve una SparkSession. 
+    Se utiliza getOrCreate() para seguir el patrón Singleton de Spark.
     """
-    global _spark_session
-    if _spark_session is None:
-        try:
-            _spark_session = SparkSession.builder \
-                .appName("DataCleanSparkAPI") \
-                .config("spark.driver.host", "127.0.0.1") \
-                .config("spark.executor.extraJavaOptions", "-Dfile.encoding=UTF-8") \
-                .config("spark.driver.maxResultSize", "4g") \
-                .config("spark.sql.execution.arrow.pyspark.enabled", "false") \
-                .config("spark.sql.execution.pandas.grouped.structuredDataConversion", "false") \
-                .getOrCreate()
-            
-            # Ajuste de log level (opcional, pero reduce ruido)
-            _spark_session.sparkContext.setLogLevel("ERROR") 
+    spark = SparkSession.builder \
+        .appName(app_name) \
+        .config("spark.driver.host", "127.0.0.1") \
+        .config("spark.sql.execution.arrow.pyspark.enabled", "false") \
+        .getOrCreate()
 
-            print("INFO: SparkSession iniciada correctamente. (Configuraciones de compatibilidad aplicadas)")
-        except Exception as e:
-            # Si el error persiste, puede ser un problema de permisos o de Java
-            print(f"ERROR: Falló al inicializar SparkSession. Error: {e}")
-            raise e
-    return _spark_session
+    # Configuración de logs para limpieza de consola
+    spark.sparkContext.setLogLevel("ERROR")
+    
+    return spark
 
 
-# ***************************************************************
-# FORZAR LA INICIALIZACIÓN AL CARGAR EL MÓDULO
-# ***************************************************************
-try:
-    get_spark_session()
-except Exception as e:
-    print(f"FATAL: No se pudo inicializar Spark al cargar el módulo. Error: {e}")
-
-# =========================================================================
-# 1. FUNCIÓN DE LECTURA (Gestión de Archivos Temporales)
-# =========================================================================
+# Funcion para la lectura de archivos
 
 def read_file_from_buffer_spark(file_buffer: Union[BytesIO, StringIO], filename: str) -> DataFrame:
     """
@@ -130,7 +69,7 @@ def read_file_from_buffer_spark(file_buffer: Union[BytesIO, StringIO], filename:
                 mode="PERMISSIVE"
             )
         elif ext == "json":
-            df = spark.read.json(tmp_path)
+            df = spark.read.option("multiline", "true").json(tmp_path)
         elif ext in ["xls", "xlsx"]:
             raise ValueError(f"Formato Excel (.{ext}) requiere dependencias adicionales (ej. spark-excel). Use CSV o JSON.")
         else:
@@ -143,18 +82,25 @@ def read_file_from_buffer_spark(file_buffer: Union[BytesIO, StringIO], filename:
         return df
         
     except Exception as e:
-        # Si hay error en lectura o cacheo, relanzar el error.
-        raise IOError(f"Error al leer/procesar el archivo con Spark: {e}")
-        
-    finally:
-        # 6. Limpieza: Eliminar el archivo temporal del disco si existe.
+        # Si falló, SÍ borramos el temporal porque no sirve
         if tmp_path and os.path.exists(tmp_path):
             os.unlink(tmp_path)
+        raise IOError(f"Error al leer/procesar el archivo con Spark: {e}")
+        
+
+# Funcion para normalizacion
+def normalizar_texto_spark(df: DataFrame, column_name: str) -> DataFrame:
+    """
+    Convierte todo el texto de una columna a minúsculas y elimina espacios 
+    en blanco al inicio y al final.
+    """
+    return df.withColumn(
+        column_name, 
+        F.lower(F.trim(F.col(column_name)))
+    )
 
 
-# =========================================================================
-# 2. FUNCIONES DE LIMPIEZA (Puras - Devuelven DF de Spark modificado)
-# =========================================================================
+# Funciones para la limpieza
 
 # Definición de UDF para la lógica de limpieza compleja de números
 def _limpiar_valor_spark_udf(valor):
@@ -245,9 +191,25 @@ def separar_valores_spark(df: DataFrame, columna: str, separador: str, nuevo_nom
     
     return df_new
 
-# =========================================================================
-# 3. FUNCIONES DE ANÁLISIS (Puras - Devuelven un diccionario de resultados)
-# =========================================================================
+def remplazar_valor_spark(df: DataFrame, column_name:str, viejo_valor:str, nuevo_valor:str):
+    '''
+    Buscaremos el valor especifico y hacemos el cambio
+    '''
+
+    return df.withColumn(
+        column_name, 
+        F.when(F.col(column_name) == viejo_valor, nuevo_valor).otherwise(F.col(column_name))
+    )
+
+#funcion para manejo de deuplicados 
+def eliminar_duplicados_spark(df:DataFrame) -> DataFrame:
+    #eliminando filar con valores iguales
+    return df.dropDuplicates()
+
+#funcion para imputacion de valores
+def rellenar_valores_spark(df:DataFrame, column_name:str, valor:Any) -> DataFrame:
+    #rellenando los valores de una columna con un valor especifico
+    return df.na.fill({column_name:valor})
 
 def tipo_datos_spark(df: DataFrame, columna: str) -> Dict[str, str]:
     if columna not in df.columns:
@@ -267,6 +229,16 @@ def cantidad_nulos_spark(df: DataFrame, columna: str) -> int:
     null_count = df.filter(F.col(columna).isNull()).count()
     return int(null_count)
 
+def cantidad_nulos_total_spark(df: DataFrame) -> Dict[str,int]:
+    '''
+    Cuenta los nulos de todas las columnas del dataframe 
+    '''
+    expresiones = [F.count(F.when(F.col(c).isNull(), c)).alias(c) for c in df.columns]
+    #ejecutamos la agregacion 
+    resultado_row = df.select(expresiones).collect()[0]
+
+    #convertimoa el objeto Row de spark en un diccionario de pythin 
+    return resultado_row.asDict()
 
 def detectar_patrones_spark(df: DataFrame, columna: str) -> Dict[str, Any]:
     if columna not in df.columns:
@@ -303,9 +275,23 @@ def correlaciones_spark(df: DataFrame) -> Dict[str, Any]:
     except Exception as e:
         return {"error": f"Error al calcular la matriz de correlación (el DF puede ser demasiado grande para el driver): {e}"}
 
-# =========================================================================
-# 4. FUNCIÓN DE GUARDADO (Adaptación al Servidor)
-# =========================================================================
+#funcion para filtrar 
+def filtrar_datos_spark(df:DataFrame, condicion:str) -> DataFrame:
+    #aplicando un filtro tipo sql 
+    return df.filter(condicion)
+
+def desdoblar_columna_spark(df: DataFrame, columna: str) -> DataFrame:
+    """
+    Aplica 'explode' a una columna que contiene arreglos (arrays),
+    creando una fila nueva por cada elemento del arreglo.
+    """
+    if columna not in df.columns:
+        raise ValueError(f"La columna '{columna}' no existe.")
+    
+    # explode crea una nueva fila por cada elemento en el array de la columna
+    return df.withColumn(columna, F.explode(F.col(columna)))
+
+#funcion para guardar daraframe
 
 def guardar_dataframe_spark(df: DataFrame, nombre_base: str, ext: str) -> Tuple[bool, str]:
     """
@@ -354,7 +340,7 @@ def spark_df_to_api_response(df: DataFrame) -> Dict[str, Any]:
     get_spark_session() 
     
     total_rows = df.count() 
-    df_preview = df.limit(100).toPandas() # Limitar el preview y traer al driver
+    df_preview = df.limit(10).toPandas() # Limitar el preview y traer al driver
     
     # Reemplazar NaN/NaT (que vienen de Pandas) con None para ser serializable en JSON
     df_preview = df_preview.replace({float('nan'): None}) 
